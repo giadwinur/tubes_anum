@@ -1,7 +1,4 @@
-// ignore: unused_import
-import 'dart:math';
 import 'package:flutter/material.dart';
-// ignore: unused_import
 
 class Calculate extends StatefulWidget {
   const Calculate({super.key});
