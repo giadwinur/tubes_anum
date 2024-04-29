@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tubes_anum/kalkulator/calculator.coba.dart';
 import 'package:tubes_anum/kalkulator/widget/buttonhistory.dart';
 import 'package:tubes_anum/kalkulator/widget/buttonhitung.dart';
 import 'package:tubes_anum/kalkulator/widget/textfield.dart';
@@ -15,6 +16,7 @@ class KalkulatorMobile extends StatelessWidget {
       child: const Column(
         children: [
           TextKalku(),
+          Calculate(),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

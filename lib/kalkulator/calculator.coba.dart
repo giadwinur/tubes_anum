@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tubes_anum/kalkulator/data.dart';
 
 class Calculate extends StatefulWidget {
   const Calculate({super.key});
@@ -8,10 +9,10 @@ class Calculate extends StatefulWidget {
 }
 
 class _CalculateState extends State<Calculate> {
-  final TextEditingController ctrlFungsi = TextEditingController();
-  final TextEditingController ctrlX0 = TextEditingController();
-  final TextEditingController ctrlX1 = TextEditingController();
-  final TextEditingController ctrlError = TextEditingController();
+  // final TextEditingController ctrlFungsi = TextEditingController();
+  // final TextEditingController ctrlX0 = TextEditingController();
+  // final TextEditingController ctrlX1 = TextEditingController();
+  // final TextEditingController ctrlError = TextEditingController();
 
   bool isShowClearA = false;
   bool isShowClearB = false;
@@ -19,10 +20,10 @@ class _CalculateState extends State<Calculate> {
   bool isShowClearD = false;
 
   void calculateBisection() {
-    String fungsi = ctrlFungsi.text;
-    double x0 = double.parse(ctrlX0.text);
-    double x1 = double.parse(ctrlX1.text);
-    double error = double.parse(ctrlError.text);
+    String fungsi = dc.ctrlFungsi.text;
+    double x0 = double.parse(dc.ctrlX0.text);
+    double x1 = double.parse(dc.ctrlX1.text);
+    double error = double.parse(dc.ctrlError.text);
 
     double y0 = _evaluateFunction(fungsi, x0);
     double y1 = _evaluateFunction(fungsi, x1);
@@ -72,15 +73,23 @@ class _CalculateState extends State<Calculate> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
+    return
+
+        // Container(
+        //   width: 50,
+        //   height: 200,
+        //   color: Colors.amber,
+        // );
+
+        Container(
+      // width: double.infinity,
       // height: 500,
       color: const Color(0xffFFFAD7),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextField(
-            controller: ctrlFungsi,
+            controller: dc.ctrlFungsi,
             onChanged: (value) {
               setState(() {
                 isShowClearA = value.isNotEmpty;
@@ -92,7 +101,7 @@ class _CalculateState extends State<Calculate> {
               suffixIcon: isShowClearA
                   ? IconButton(
                       onPressed: () {
-                        ctrlFungsi.clear();
+                        dc.ctrlFungsi.clear();
                         setState(() {
                           isShowClearA = false;
                         });
@@ -104,7 +113,7 @@ class _CalculateState extends State<Calculate> {
           ),
           const SizedBox(height: 10),
           TextField(
-            controller: ctrlX0,
+            controller: dc.ctrlX0,
             onChanged: (value) {
               setState(() {
                 isShowClearB = value.isNotEmpty;
@@ -116,7 +125,7 @@ class _CalculateState extends State<Calculate> {
               suffixIcon: isShowClearB
                   ? IconButton(
                       onPressed: () {
-                        ctrlX0.clear();
+                        dc.ctrlX0.clear();
                         setState(() {
                           isShowClearB = false;
                         });
@@ -128,7 +137,7 @@ class _CalculateState extends State<Calculate> {
           ),
           const SizedBox(height: 10),
           TextField(
-            controller: ctrlX1,
+            controller: dc.ctrlX1,
             onChanged: (value) {
               setState(() {
                 isShowClearC = value.isNotEmpty;
@@ -140,7 +149,7 @@ class _CalculateState extends State<Calculate> {
               suffixIcon: isShowClearC
                   ? IconButton(
                       onPressed: () {
-                        ctrlX1.clear();
+                        dc.ctrlX1.clear();
                         setState(() {
                           isShowClearC = false;
                         });
@@ -152,7 +161,7 @@ class _CalculateState extends State<Calculate> {
           ),
           const SizedBox(height: 10),
           TextField(
-            controller: ctrlError,
+            controller: dc.ctrlError,
             onChanged: (value) {
               setState(() {
                 isShowClearD = value.isNotEmpty;
@@ -164,7 +173,7 @@ class _CalculateState extends State<Calculate> {
               suffixIcon: isShowClearD
                   ? IconButton(
                       onPressed: () {
-                        ctrlError.clear();
+                        dc.ctrlError.clear();
                         setState(() {
                           isShowClearD = false;
                         });
@@ -175,20 +184,6 @@ class _CalculateState extends State<Calculate> {
             ),
           ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: calculateBisection,
-                child: const Text('Hitung'),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text('History'),
-              ),
-            ],
-          )
         ],
       ),
     );
