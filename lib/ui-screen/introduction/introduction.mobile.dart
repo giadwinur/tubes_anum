@@ -47,23 +47,17 @@ class IntroMobile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 50),
-              Container(
-                width: double.infinity,
-                height: width > 900 ? 400 : null,
-                color: Colors.white,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Hasil Perhitungan'),
-                    const SizedBox(width: 20),
-                    Container(
-                      width: 500,
-                      height: 500,
-                      color: Colors.grey,
-                    ),
-                  ],
-                ),
-              ),
+              // Container(
+              //   width: double.infinity,
+              //   height: width > 900 ? 400 : null,
+              //   color: Colors.white,
+              //   child: const Column(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     children: [
+              //       Text('Hasil perhitungan'),
+              //     ],
+              //   ),
+              // ),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(10),

@@ -15,12 +15,13 @@ class KalkulatorMobile extends StatelessWidget {
       color: const Color.fromARGB(255, 205, 201, 185),
       child: const Column(
         children: [
-          TextKalku(),
           Calculate(),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ButtonHitung(),
+              // ButtonHitung(
+              //   onPressed:,
+              // ),
               SizedBox(width: 10),
               ButtonHistory(),
             ],
