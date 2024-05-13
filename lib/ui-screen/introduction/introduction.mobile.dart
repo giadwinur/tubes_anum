@@ -37,7 +37,7 @@ class IntroMobile extends StatelessWidget {
               ),
               Container(
                 width: double.infinity,
-                height: width > 900 ? 400 : null,
+                height: width > 900 ? 600 : null,
                 color: Colors.white,
                 child: const Column(
                   children: [

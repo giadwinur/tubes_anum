@@ -1,253 +1,155 @@
 import 'package:flutter/material.dart';
-import 'package:math_expressions/math_expressions.dart';
 import 'package:tubes_anum/kalkulator/data.dart';
+import 'package:tubes_anum/kalkulator/grafik.dart';
 import 'package:tubes_anum/kalkulator/widget/buttonhitung.dart';
 
 class Calculate extends StatefulWidget {
   const Calculate({Key? key}) : super(key: key);
 
   @override
-  State<Calculate> createState() => _CalculateState();
+  _CalculateState createState() => _CalculateState();
 }
 
 class _CalculateState extends State<Calculate> {
-  bool isShowClearA = false;
-  bool isShowClearB = false;
-  bool isShowClearC = false;
-  bool isShowClearD = false;
+  TextEditingController equationController = TextEditingController();
+  TextEditingController errorController = TextEditingController(text: '0.0001');
+  TextEditingController guess1Controller = TextEditingController();
+  TextEditingController guess2Controller = TextEditingController();
 
-  String resultMessage = '';
-  List<Iteration> iterations = [];
+  List<Map<String, dynamic>> iterations = [];
+  double error = 0.001; // atau nilai yang sesuai
 
-  double calculateBisection(String expression, double x0, double x1, double error) {
-    Parser p = Parser();
-    Expression exp = p.parse(expression);
+  void calculate() {
+    String equation = equationController.text;
+    double errorValue = double.tryParse(errorController.text) ?? 0;
+    double guess1 = double.tryParse(guess1Controller.text) ?? 0;
+    double guess2 = double.tryParse(guess2Controller.text) ?? 0;
 
-    double f0, f1, x2, f2;
-
-    // Evaluasi fungsi pada titik x0 dan x1
-    ContextModel cm = ContextModel();
-    cm.bindVariable(Variable('x'), Number(x0));
-    f0 = exp.evaluate(EvaluationType.REAL, cm);
-
-    cm.bindVariable(Variable('x'), Number(x1));
-    f1 = exp.evaluate(EvaluationType.REAL, cm);
-
-    // Periksa apakah fungsi memiliki akar pada rentang yang diberikan
-    if (f0 * f1 >= 0) {
-      // Tidak ada akar pada rentang yang diberikan, kembalikan nilai yang menandakan hal ini
-      return -1;
+    if (equation.isEmpty || errorValue.isNaN || guess1.isNaN || guess2.isNaN) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Invalid Input'),
+          content: const Text('Please enter valid inputs for all fields.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
     }
 
-    // Metode bisection
-    int step = 0;
-    do {
-      x2 = (x0 + x1) / 2;
-      cm.bindVariable(Variable('x'), Number(x2));
-      f2 = exp.evaluate(EvaluationType.REAL, cm);
+    // Call the bisectionMethod function with user input values
+    setState(() {
+      BisectionResult result = bisectionMethod(equation, guess1, guess2, errorValue);
+      iterations = result.iterations;
+    });
+  }
 
-      if (f0 * f2 < 0) {
-        x1 = x2;
-      } else {
-        x0 = x2;
-      }
-
-      step++;
-      iterations.add(Iteration(step: step, x: x2, f: f2, difference: (x1 - x0).abs()));
-    } while ((x1 - x0).abs() >= error);
-
-    // Kembalikan nilai akar yang ditemukan
-    return x2;
+  void clearInputs() {
+    equationController.clear();
+    errorController.clear();
+    guess1Controller.clear();
+    guess2Controller.clear();
+    setState(() {
+      iterations.clear();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xffFFFAD7),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TextField(
-            controller: dc.ctrlFungsi,
-            onChanged: (value) {
-              setState(() {
-                isShowClearA = value.isNotEmpty;
-              });
-            },
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              hintText: 'Fungsi',
-              suffixIcon: isShowClearA
-                  ? IconButton(
-                      onPressed: () {
-                        dc.ctrlFungsi.clear();
-                        setState(() {
-                          isShowClearA = false;
-                        });
-                      },
-                      icon: const Icon(Icons.clear),
-                    )
-                  : null,
+            controller: equationController,
+            decoration: const InputDecoration(
+              labelText: 'Enter Function ( f(x) )',
+              filled: true,
+              fillColor: Colors.white,
             ),
           ),
           const SizedBox(height: 10),
           TextField(
-            controller: dc.ctrlX0,
-            onChanged: (value) {
-              setState(() {
-                isShowClearB = value.isNotEmpty;
-              });
-            },
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              hintText: 'Nilai Awal x0',
-              suffixIcon: isShowClearB
-                  ? IconButton(
-                      onPressed: () {
-                        dc.ctrlX0.clear();
-                        setState(() {
-                          isShowClearB = false;
-                        });
-                      },
-                      icon: const Icon(Icons.clear),
-                    )
-                  : null,
+            controller: errorController,
+            decoration: const InputDecoration(
+              labelText: 'Error (e)',
+              filled: true,
+              fillColor: Colors.white,
             ),
+            keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 10),
           TextField(
-            controller: dc.ctrlX1,
-            onChanged: (value) {
-              setState(() {
-                isShowClearC = value.isNotEmpty;
-              });
-            },
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              hintText: 'Nilai Awal x1',
-              suffixIcon: isShowClearC
-                  ? IconButton(
-                      onPressed: () {
-                        dc.ctrlX1.clear();
-                        setState(() {
-                          isShowClearC = false;
-                        });
-                      },
-                      icon: const Icon(Icons.clear),
-                    )
-                  : null,
+            controller: guess1Controller,
+            decoration: const InputDecoration(
+              labelText: 'Guess 1 (x0)',
+              filled: true,
+              fillColor: Colors.white,
             ),
+            keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 10),
           TextField(
-            controller: dc.ctrlError,
-            onChanged: (value) {
-              setState(() {
-                isShowClearD = value.isNotEmpty;
-              });
-            },
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              hintText: 'Tolerasi Error',
-              suffixIcon: isShowClearD
-                  ? IconButton(
-                      onPressed: () {
-                        dc.ctrlError.clear();
-                        setState(() {
-                          isShowClearD = false;
-                        });
-                      },
-                      icon: const Icon(Icons.clear),
-                    )
-                  : null,
+            controller: guess2Controller,
+            decoration: const InputDecoration(
+              labelText: 'Guess 2 (x1)',
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(height: 20),
+          ButtonHitung(onCalculate: calculate, onClear: clearInputs),
+          const SizedBox(height: 20),
+          const Center(
+            child: Text(
+              'Hasil Perhitungan',
+              style: TextStyle(color: Colors.white, fontSize: 20),
             ),
           ),
-          const SizedBox(height: 10),
-          ButtonHitung(
-            onPressed: () {
-              String expression = dc.ctrlFungsi.text;
-              double x0 = double.tryParse(dc.ctrlX0.text) ?? 0;
-              double x1 = double.tryParse(dc.ctrlX1.text) ?? 0;
-              double error = double.tryParse(dc.ctrlError.text) ?? 0;
-
-              iterations.clear();
-              double result = calculateBisection(expression, x0, x1, error);
-
-              if (result != -1) {
-                setState(() {
-                  resultMessage = 'Akar dari fungsi adalah: $result';
-                });
-              } else {
-                setState(() {
-                  resultMessage = 'Tidak ditemukan akar pada rentang yang diberikan.';
-                });
-              }
-            },
-          ),
-          const SizedBox(height: 10),
-          Text(
-            resultMessage,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          if (iterations.isNotEmpty)
-            DataTable(
-              columns: const <DataColumn>[
-                DataColumn(
-                  label: Text(
-                    'Step',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'x',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'F(x)',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    '|x(i) - x(i-1)|',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-              rows: iterations
-                  .map(
-                    (iteration) => DataRow(
+          const SizedBox(height: 20),
+          iterations.isEmpty
+              ? const SizedBox.shrink()
+              : DataTable(
+                  columns: const [
+                    DataColumn(label: Text('Iteration', style: TextStyle(color: Colors.white))),
+                    DataColumn(label: Text('a', style: TextStyle(color: Colors.white))),
+                    DataColumn(label: Text('b', style: TextStyle(color: Colors.white))),
+                    // DataColumn(label: Text('f(a)', style: TextStyle(color: Colors.white))),
+                    // DataColumn(label: Text('f(b)', style: TextStyle(color: Colors.white))),
+                    DataColumn(label: Text('x', style: TextStyle(color: Colors.white))),
+                    DataColumn(label: Text('f(x)', style: TextStyle(color: Colors.white))),
+                    DataColumn(label: Text('Error', style: TextStyle(color: Colors.white))),
+                  ],
+                  rows: iterations.map((iteration) {
+                    return DataRow(
                       cells: [
-                        DataCell(Text('x${iteration.step}')),
-                        DataCell(Text(iteration.x.toStringAsFixed(4))),
-                        DataCell(Text(iteration.f.toStringAsFixed(4))),
-                        DataCell(Text(iteration.difference.toStringAsFixed(4))),
+                        DataCell(Text(iteration['Iteration'].toString(), style: const TextStyle(color: Colors.white))),
+                        DataCell(Text(iteration['a'].toString(), style: const TextStyle(color: Colors.white))),
+                        DataCell(Text(iteration['b'].toString(), style: const TextStyle(color: Colors.white))),
+                        // DataCell(Text(iteration['f(a)'].toString(), style: const TextStyle(color: Colors.white))),
+                        // DataCell(Text(iteration['f(b)'].toString(), style: const TextStyle(color: Colors.white))),
+                        DataCell(Text(iteration['x'].toString(), style: const TextStyle(color: Colors.white))),
+                        DataCell(Text(iteration['f(x)'].toString(), style: const TextStyle(color: Colors.white))),
+                        DataCell(Text(iteration['Error'].toString(), style: const TextStyle(color: Colors.white))),
                       ],
-                    ),
-                  )
-                  .toList(),
-            ),
+                    );
+                  }).toList(),
+                ),
+          const SizedBox(height: 20),
+          // const Text(
+          //   'Hasil Grafiknya:',
+          //   style: TextStyle(color: Colors.white, fontSize: 10),
+          // ),
+          iterations.isEmpty ? const SizedBox.shrink() : GraphWidget(iterations: iterations, error: error),
         ],
       ),
     );
   }
-}
-
-class Iteration {
-  final int step;
-  final double x;
-  final double f;
-  final double difference;
-
-  Iteration({
-    required this.step,
-    required this.x,
-    required this.f,
-    required this.difference,
-  });
 }

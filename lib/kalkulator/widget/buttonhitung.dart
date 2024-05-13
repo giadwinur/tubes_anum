@@ -1,16 +1,27 @@
-// widget/buttonhitung.dart
 import 'package:flutter/material.dart';
 
 class ButtonHitung extends StatelessWidget {
-  final VoidCallback? onPressed;
+  final VoidCallback onCalculate;
+  final VoidCallback onClear;
 
-  const ButtonHitung({Key? key, this.onPressed}) : super(key: key);
+  const ButtonHitung({super.key, required this.onCalculate, required this.onClear});
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      child: const Text('Hitung'),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ElevatedButton(
+          onPressed: onCalculate,
+          child: const Text('Calculate'),
+        ),
+        const SizedBox(width: 10),
+        ElevatedButton(
+          onPressed: onClear,
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+          child: const Text('Clear'),
+        ),
+      ],
     );
   }
 }
